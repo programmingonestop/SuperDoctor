@@ -1,0 +1,58 @@
+@charset "ISO-8859-1";
+
+.bg-theme-color{
+    background-color: #E4839A !important;
+}
+
+.nav-link{
+    color: white;
+    margin-right: 80px;
+}
+.navbar-brand{
+    color: white;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+.site-section{
+    background-image: url('/img/site-content.jpeg');
+    background-attachment: fixed;
+    background-size: cover;
+}
+.site-section .heading-1{
+    color: #E4839A !important;
+    padding-top: 5%;;
+}
+.site-section .btn{
+    margin-top: 3%;
+    color: white;
+    background-color: #E4839A;
+    margin-bottom: 3%;
+    
+}
+.site-section .btn:hover{
+    margin-top: 3%;
+    color: white;
+    background-color:#E42E58
+
+    
+}
+
+.cards-section{
+    margin-top: 3%;
+}
+.services-main-title h2{
+    color: black !important;
+}
+
+.service-card-head{
+background-color: #E4DFD9 !important;
+}
+.service-card-footer{
+    background-color: #E4DFD9 !important;
+}
+.section-end{
+    background-color: #E4839A;
+    color: white;
+}
+.footer-content{
+    color: black;
+}
