@@ -1,14 +1,13 @@
 package com.programmingonestop.healthchecker.controller;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.programmingonestop.healthchecker.model.HealthItem;
@@ -25,10 +24,29 @@ public class LoadBodyLocationsController {
 	 */
 	
 	@GetMapping("/testing")
-	public String testing(@RequestParam Map values) 
+	public ModelAndView testing(ModelAndView mv) throws Exception 
 	{
-		System.out.println(values);
-		return "testing";
+		
+		List<HealthItem>bodylocs=lbls.loadBodyLocations();
+		List<HealthItem>bodySublocations=new ArrayList<HealthItem>();
+		List<HealthSymptomSelector>symptoms=new ArrayList<HealthSymptomSelector>();
+		
+		for(HealthItem item:bodylocs) 
+		{
+			bodySublocations.addAll(lbls.loadBodySubLocations(item.ID));
+			
+		}
+		
+		for(HealthItem subloc:bodySublocations) 
+		{
+			symptoms=lbls.LoadSublocationSymptoms(subloc.ID);
+			
+		}
+		mv.setViewName("testing");
+		mv.addObject("bodylocs",bodylocs);
+		mv.addObject("locsublocs", bodySublocations);
+		mv.addObject("sublocsymptoms", symptoms);
+		return mv;
 	}
 
 	@GetMapping("/body-sublocations/{locId}")
