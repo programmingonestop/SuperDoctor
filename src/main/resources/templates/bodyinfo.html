@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>SuperDoc</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+	crossorigin="anonymous">
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://code.jquery.com/jquery-3.4.1.js"
+	integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+	crossorigin="anonymous"></script>
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+	integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+	crossorigin="anonymous"></script>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+	integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+	crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/main.js">
+	
+</script>
+</head>
+<body class="m-3">
+	<form action="/diagonize" method="POST">
+		<div id="accordion" th:each="loc,iterStat:${bodylocs}">
+			<div class="card">
+				<div class="card-header" id="heading-1">
+					<h5 class="mb-0">
+						<a role="button" data-toggle="collapse"
+							th:href="'#collapse_'+${iterStat.index}" aria-expanded="true"
+							aria-controls="collapse-1">
+							<h5 th:text="${loc.Name}">Body Location</h5>
+						</a>
+					</h5>
+				</div>
+				<div th:id="'collapse_'+${iterStat.index}" class="collapse"
+					data-parent="#accordion" aria-labelledby="heading-1">
+					<div class="card-body" th:each="subloc,iterStat1:${locsublocs}">
+						<div id="accordion-1-1">
+							<div class="card">
+								<div class="card-header" id="heading-1-1-1">
+									<h5 class="mb-0">
+										<a class="collapsed" role="button" data-toggle="collapse"
+											th:href="'#collapse1_'+${iterStat1.index}"
+											aria-expanded="false" aria-controls="collapse-1-1-1">
+											<h5 th:text="${subloc.Name}">Body SubLocation</h5>
+										</a>
+									</h5>
+								</div>
+								<div th:id="'collapse1_'+${iterStat1.index}" class="collapse"
+									data-parent="#accordion-1-1" aria-labelledby="heading-1-1-1">
+									<div class="card-body">
+										<div class="input-group mb-3"
+											th:each="symptom,iterStat_2:${sublocsymptoms}">
+											<div class="input-group-prepend">
+												<div class="input-group-text">
+													<input type="checkbox"
+														th:name="${symptom.ID}"
+														aria-label="Checkbox for following text input">
+												</div>
+											</div>
+											<div type="text" class="form-control"
+												aria-label="Text input with checkbox">
+												<h6 th:text="${symptom.Name}">symptom</h6>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-4">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</form>
+</body>
+</html>

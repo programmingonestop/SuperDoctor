@@ -15,10 +15,26 @@ import com.programmingonestop.healthchecker.model.HealthItem;
 import com.programmingonestop.healthchecker.model.HealthSymptomSelector;
 import com.programmingonestop.healthchecker.model.SelectorStatus;
 
+/*
+ * 
+ * This class processes information requested by the controller classes
+ * Based on the request it can return back to the caller class,body location,sublocation
+ * or symptom for the selected sublocation.
+ * it also returns to the caller diagnosis results or specialization based on the request
+ */
 @Service
 public class LoadBodyLocationsService {
 	
 	private static DiagnosisClient _diagnosisClient;
+	
+	/*
+	 * 
+	 * Loads body locations
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
 
 	public List<HealthItem> loadBodyLocations() throws Exception {
 
@@ -34,23 +50,60 @@ public class LoadBodyLocationsService {
 		return bodyLocations;
 	}
 	
-
+/*
+ * 
+ * Loads body sublocations based on the body location id
+ * 
+ * 
+ * 
+ */
 	public List<HealthItem> loadBodySubLocations(int locId) throws Exception {
 		List<HealthItem> bodySublocations = _diagnosisClient.loadBodySubLocations(locId);
         
 		return bodySublocations;
 	}
 	
-	
-	public  List<HealthSymptomSelector> LoadSublocationSymptoms(int subLocId) throws Exception
+	/*
+	 * 
+	 * A general purpose method to load body info
+	 */
+	public ArrayList loadbodyInfo(SelectorStatus selectorStatus) throws Exception 
 	{
-	    List<HealthSymptomSelector> symptoms = _diagnosisClient.loadSublocationSymptoms(subLocId, SelectorStatus.Man);
+		ArrayList bodyitems=new ArrayList();
+		ArrayList<HealthItem>bodylocs=(ArrayList<HealthItem>) loadBodyLocations();
+		ArrayList<HealthItem>bodySublocations=new ArrayList<HealthItem>();
+		ArrayList<HealthSymptomSelector>symptoms=new ArrayList<HealthSymptomSelector>();
+		for(HealthItem item:bodylocs) 
+		{
+			bodySublocations.addAll(loadBodySubLocations(item.ID));
+			
+		}
+		for(HealthItem subloc:bodySublocations) 
+		{
+			symptoms=(ArrayList<HealthSymptomSelector>) LoadSublocationSymptoms(subloc.ID,selectorStatus);
+			
+		}
+		
+		bodyitems.add(bodylocs);
+		bodyitems.add(bodySublocations);
+		bodyitems.add(symptoms);
+		return bodyitems;
+	}
+	
+	public  List<HealthSymptomSelector> LoadSublocationSymptoms(int subLocId,SelectorStatus selectorStatus) throws Exception
+	{
+	    List<HealthSymptomSelector> symptoms = _diagnosisClient.loadSublocationSymptoms(subLocId, selectorStatus);
 
 	    return symptoms;
 	}
 	
-	
-	public List<Integer> diagonize(List<HealthSymptomSelector>selectedSymptoms,int selectedSublocationID) throws Exception 
+	/*
+	 * 
+	 * Returns diagnosis results of the symptoms provided
+	 * 
+	 * 
+	 */
+	public List<Integer> diagonize(List<HealthSymptomSelector>selectedSymptoms,Gender gender,SelectorStatus selectorStatus) throws Exception 
 	{
 		// Load diagnosis (reloading if data is not conclusive)
 	    int count = 0;
@@ -59,13 +112,14 @@ public class LoadBodyLocationsService {
 	    List<Integer> diagnosis = new ArrayList<Integer>();
 	    while(sucess!=true) {
 	        try {
-	        	diagnosis = LoadDiagnosis(selectedSymptoms);
+	        	diagnosis = LoadDiagnosis(selectedSymptoms,gender);
 	        	sucess= true;
 	        } catch (Exception diagnosisException){
 	           	// reload data if diagnosis result is not conclusive
-	        	
-	        	selectedSymptoms = LoadSublocationSymptoms(selectedSublocationID);
+	        	/*
+	        	selectedSymptoms = LoadSublocationSymptoms(selectedSublocationID,selectorStatus);
 	        	if (++count == maxTries) throw diagnosisException;
+	        	*/
 	        sucess=false;
 	        }
 	}	
@@ -74,7 +128,7 @@ public class LoadBodyLocationsService {
 	
 	
 	
-	public List<Integer> LoadDiagnosis(List<HealthSymptomSelector> selectedSymptoms) throws Exception
+	public List<Integer> LoadDiagnosis(List<HealthSymptomSelector> selectedSymptoms,Gender gender) throws Exception
 	{
 	
 		List<Integer> selectedSymptomsIds = new ArrayList<Integer>();
@@ -82,7 +136,7 @@ public class LoadBodyLocationsService {
 			selectedSymptomsIds.add(symptom.ID);
 		}
 		
-	    List<HealthDiagnosis> diagnosis = _diagnosisClient.loadDiagnosis(selectedSymptomsIds, Gender.Male, 1988);
+	    List<HealthDiagnosis> diagnosis = _diagnosisClient.loadDiagnosis(selectedSymptomsIds, gender, 1988);
 
 	    if (diagnosis == null || diagnosis.size() == 0)
 	    {
@@ -106,7 +160,7 @@ public class LoadBodyLocationsService {
 	
 	
 	
-	public void LoadSpecialisations(List<HealthSymptomSelector> selectedSymptoms) throws Exception
+	public void LoadSpecialisations(List<HealthSymptomSelector> selectedSymptoms,Gender gender) throws Exception
 	{
 		
 
@@ -115,7 +169,7 @@ public class LoadBodyLocationsService {
 			selectedSymptomsIds.add(symptom.ID);
 		}
 		
-	    List<DiagnosedSpecialisation> specialisations = _diagnosisClient.loadSpecialisations(selectedSymptomsIds, Gender.Male, 1988);
+	    List<DiagnosedSpecialisation> specialisations = _diagnosisClient.loadSpecialisations(selectedSymptomsIds,gender, 1988);
 
 	    if (specialisations == null || specialisations.size() == 0)
 	    {
@@ -130,13 +184,13 @@ public class LoadBodyLocationsService {
 	
 	
 	
-	static void LoadProposedSymptoms(List<HealthSymptomSelector> selectedSymptoms) throws Exception
+	static void LoadProposedSymptoms(List<HealthSymptomSelector> selectedSymptoms,Gender gender) throws Exception
 	{
 		List<Integer> selectedSymptomsIds = new ArrayList<Integer>();
 		for(HealthSymptomSelector symptom : selectedSymptoms){
 			selectedSymptomsIds.add(symptom.ID);
 		}
-	    List<HealthItem> proposedSymptoms = _diagnosisClient.loadProposedSymptoms(selectedSymptomsIds, Gender.Male, 1988);
+	    List<HealthItem> proposedSymptoms = _diagnosisClient.loadProposedSymptoms(selectedSymptomsIds, gender, 1988);
 
 	    if (proposedSymptoms == null || proposedSymptoms.size() == 0)
 	    {
