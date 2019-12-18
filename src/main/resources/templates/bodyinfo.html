@@ -24,22 +24,31 @@
 	
 </script>
 </head>
+
 <body class="m-3">
-	<form action="/diagonize" method="POST">
-		<div id="accordion" th:each="loc,iterStat:${bodylocs}">
-			<div class="card">
-				<div class="card-header" id="heading-1">
-					<h5 class="mb-0">
-						<a role="button" data-toggle="collapse"
-							th:href="'#collapse_'+${iterStat.index}" aria-expanded="true"
-							aria-controls="collapse-1">
-							<h5 th:text="${loc.Name}">Body Location</h5>
-						</a>
-					</h5>
-				</div>
-				<div th:id="'collapse_'+${iterStat.index}" class="collapse"
-					data-parent="#accordion" aria-labelledby="heading-1">
-					<div class="card-body" th:each="subloc,iterStat1:${locsublocs}">
+    <form action="/diagonize" method="POST">
+        <div id="accordion" th:each="loc,iterStat:${bodylocs}">
+            <div class="card">
+                <div class="card-header" id="heading-1">
+                    <h5 class="mb-0">
+                        <a role="button" data-toggle="collapse" th:href="'#collapse_'+${iterStat.index}"
+                            aria-expanded="true" aria-controls="collapse-1">
+                            <h5 th:text="${loc.Name}">Body Location</h5>
+                        </a>
+                    </h5>
+                </div>
+                <div th:id="'collapse_'+${iterStat.index}" class="collapse" data-parent="#accordion"
+                    aria-labelledby="heading-1">
+                    <div class="card-body" th:each="subloc,iterStat1:${bodysublocationsmap[iterStat.index]}">
+						
+						
+						
+						
+						
+						
+						
+						
+						
 						<div id="accordion-1-1">
 							<div class="card">
 								<div class="card-header" id="heading-1-1-1">
@@ -54,12 +63,10 @@
 								<div th:id="'collapse1_'+${iterStat1.index}" class="collapse"
 									data-parent="#accordion-1-1" aria-labelledby="heading-1-1-1">
 									<div class="card-body">
-										<div class="input-group mb-3"
-											th:each="symptom,iterStat_2:${sublocsymptoms}">
+										<div class="input-group mb-3" th:each="symptom,iterStat2:${sublocsymptomsmap[iterStat.index][iterStat1.index]}">
 											<div class="input-group-prepend">
 												<div class="input-group-text">
-													<input type="checkbox"
-														th:name="${symptom.ID}"
+													<input type="checkbox" th:name="${symptom.ID}"
 														aria-label="Checkbox for following text input">
 												</div>
 											</div>
@@ -70,9 +77,25 @@
 										</div>
 									</div>
 								</div>
+
+
 							</div>
 						</div>
-					</div>
+						
+						
+						
+						
+						
+		
+						
+					
+					
+					
+					
+					
+						
+                    </div>
+          
 				</div>
 			</div>
 		</div>

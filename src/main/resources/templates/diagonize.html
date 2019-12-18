@@ -5,6 +5,9 @@
 <title>SuperDoc</title>
 </head>
 <body>
-diagnosis result will come here
+<h3>You chose the following</h3>
+<div th:each="value,iterStat:${values}">
+<h4 th:text="${value.Name}"></h4>
+</div>
 </body>
 </html>

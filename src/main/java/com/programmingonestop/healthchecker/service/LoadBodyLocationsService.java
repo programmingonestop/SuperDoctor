@@ -1,6 +1,7 @@
 package com.programmingonestop.healthchecker.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -44,8 +45,9 @@ public class LoadBodyLocationsService {
 		if (bodyLocations == null || bodyLocations.size() == 0)
 			throw new Exception("Empty body locations results");
 
-		for (HealthItem loc : bodyLocations)
-			System.out.println(loc.Name + " (" + loc.ID + ")");
+		for (HealthItem loc : bodyLocations) {
+			//System.out.println(loc.Name + " (" + loc.ID + ")");
+		}
 
 		return bodyLocations;
 	}
@@ -73,20 +75,22 @@ public class LoadBodyLocationsService {
 		ArrayList<HealthItem>bodylocs=(ArrayList<HealthItem>) loadBodyLocations();
 		ArrayList<HealthItem>bodySublocations=new ArrayList<HealthItem>();
 		ArrayList<HealthSymptomSelector>symptoms=new ArrayList<HealthSymptomSelector>();
-		for(HealthItem item:bodylocs) 
+		HashMap<Integer,List<HealthSymptomSelector>>bodysublocsymptomsmap=new HashMap<Integer, List<HealthSymptomSelector>>();
+		for(int i=0;i<bodylocs.size();i++) 
 		{
-			bodySublocations.addAll(loadBodySubLocations(item.ID));
+			bodySublocations.addAll(loadBodySubLocations(bodylocs.get(i).ID));
 			
 		}
-		for(HealthItem subloc:bodySublocations) 
+		for(int i=0;i<bodySublocations.size();i++) 
 		{
-			symptoms=(ArrayList<HealthSymptomSelector>) LoadSublocationSymptoms(subloc.ID,selectorStatus);
-			
+			symptoms=(ArrayList<HealthSymptomSelector>)LoadSublocationSymptoms(bodySublocations.get(i).ID,selectorStatus);
+			bodysublocsymptomsmap.put(i, symptoms);
+				
 		}
 		
 		bodyitems.add(bodylocs);
 		bodyitems.add(bodySublocations);
-		bodyitems.add(symptoms);
+		bodyitems.add(bodysublocsymptomsmap);
 		return bodyitems;
 	}
 	
@@ -132,6 +136,7 @@ public class LoadBodyLocationsService {
 	{
 	
 		List<Integer> selectedSymptomsIds = new ArrayList<Integer>();
+		
 		for(HealthSymptomSelector symptom : selectedSymptoms){
 			selectedSymptomsIds.add(symptom.ID);
 		}
@@ -173,12 +178,15 @@ public class LoadBodyLocationsService {
 
 	    if (specialisations == null || specialisations.size() == 0)
 	    {
-	        System.out.println("No specialisations for symptom " + selectedSymptoms.get(0).Name);
+	        //System.out.println("No specialisations for symptom " + selectedSymptoms.get(0).Name);
 	        return;
 	    }
 
-	    for (DiagnosedSpecialisation s : specialisations)
-	        System.out.println(s.Name + " - " + s.Accuracy + "%");
+	    for (DiagnosedSpecialisation s : specialisations) 
+	    {
+	       // System.out.println(s.Name + " - " + s.Accuracy + "%");
+	        
+	    }
 	}
 	
 	
@@ -194,7 +202,7 @@ public class LoadBodyLocationsService {
 
 	    if (proposedSymptoms == null || proposedSymptoms.size() == 0)
 	    {
-	    	System.out.println("No proposed symptoms for selected symptom " + selectedSymptoms.get(0).Name);
+	    	//System.out.println("No proposed symptoms for selected symptom " + selectedSymptoms.get(0).Name);
 	        return;
 	    }
 
@@ -202,10 +210,10 @@ public class LoadBodyLocationsService {
 	    for(HealthItem diagnose : proposedSymptoms)
 	    	proposed = proposed.concat(diagnose.Name) + ", ";
 	    
-	    System.out.println("Proposed symptoms: " + proposed);
+	    //System.out.println("Proposed symptoms: " + proposed);
 	}
 
-	
+/*	
 	public void LoadIssueInfo(int issueId) throws Exception
 	{
 	    HealthIssueInfo issueInfo = _diagnosisClient.loadIssueInfo(issueId);
@@ -220,5 +228,6 @@ public class LoadBodyLocationsService {
 	    System.out.println("Possible symptoms: " + issueInfo.PossibleSymptoms + "\n");
 	    
 	}
+	*/
 		
 }

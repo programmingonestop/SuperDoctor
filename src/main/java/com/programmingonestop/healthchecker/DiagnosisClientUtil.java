@@ -56,7 +56,7 @@ public class DiagnosisClientUtil
 	try {
 		_diagnosisClient = new DiagnosisClient(userName, password, authUrl, language, healthUrl);
 		
-		simulate();
+		//simulate();
 		
 	} catch (Exception e) {
 		// TODO Auto-generated catch block
@@ -96,15 +96,13 @@ static int GetRandom(int maxNumber)
 }
 
 
-
+/*
 static void writeHeaderMessage(String message)
 {
     System.out.println("---------------------------------------------");
     System.out.println(message);
     System.out.println("---------------------------------------------");
 }
-
-
 
 static int loadBodySublocations(int locId) throws Exception
 {
@@ -163,7 +161,7 @@ static List<HealthSymptomSelector> LoadSublocationSymptoms(int subLocId) throws 
         return null;
     }
 
-    writeHeaderMessage("Body sublocations symptoms:");
+    //writeHeaderMessage("Body sublocations symptoms:");
 
     for (HealthSymptomSelector sym : symptoms)
         System.out.println(sym.Name);
@@ -279,7 +277,7 @@ static void LoadIssueInfo(int issueId) throws Exception
 }
 
 
-
+/*
 
 static void LoadProposedSymptoms(List<HealthSymptomSelector> selectedSymptoms) throws Exception
 {
@@ -301,6 +299,7 @@ static void LoadProposedSymptoms(List<HealthSymptomSelector> selectedSymptoms) t
     
     writeHeaderMessage("Proposed symptoms: " + proposed);
 }
+
 
 
 
@@ -352,7 +351,9 @@ static void simulate(){
 		e.printStackTrace();
 		
 	}
+	
 }
+*/
 
 	
 }

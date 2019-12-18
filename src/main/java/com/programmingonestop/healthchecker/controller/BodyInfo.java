@@ -19,9 +19,6 @@ import com.programmingonestop.healthchecker.model.HealthSymptomSelector;
 import com.programmingonestop.healthchecker.model.SelectorStatus;
 import com.programmingonestop.healthchecker.service.LoadBodyLocationsService;
 
-import sun.awt.SunHints.Value;
-
-
 /*
  * This is a controller class for the SuperDoctor
  * This class loads information on body locations,sublocations and their symptoms
@@ -30,105 +27,118 @@ import sun.awt.SunHints.Value;
 public class BodyInfo {
 	@Autowired
 	private LoadBodyLocationsService lbls;
+
 	@GetMapping("/bodyinfo")
-	public ModelAndView testing(ModelAndView mv) throws Exception 
-	{
-		SelectorStatus selectorStatus=SelectorStatus.Boy;
-		
-		ArrayList<HealthItem> bodylocs=(ArrayList) lbls.loadbodyInfo(selectorStatus).get(0);
-		ArrayList<HealthItem> bodySublocations=(ArrayList) lbls.loadbodyInfo(selectorStatus).get(1);
-		ArrayList<HealthSymptomSelector> symptoms=(ArrayList) lbls.loadbodyInfo(selectorStatus).get(2);
-		
-		
-		for(HealthItem item:bodylocs) 
-		{
-			bodySublocations.addAll(lbls.loadBodySubLocations(item.ID));
-			
+	public ModelAndView testing(ModelAndView mv) throws Exception {
+		SelectorStatus selectorStatus = SelectorStatus.Boy;
+
+		ArrayList<HealthItem> bodylocs = (ArrayList) lbls.loadbodyInfo(selectorStatus).get(0);
+
+		Map<Integer, List<HealthItem>> bodysublocsmap = new HashMap<Integer, List<HealthItem>>();
+
+		HashMap<Integer, HashMap<Integer, ArrayList<HealthSymptomSelector>>> sublocsymptomsmap = new HashMap<Integer, HashMap<Integer, ArrayList<HealthSymptomSelector>>>();
+
+		ArrayList<HealthItem> bodysublocs = new ArrayList<HealthItem>();
+		ArrayList<HealthSymptomSelector> sublocsymptoms = new ArrayList<HealthSymptomSelector>();
+		HashMap<Integer, ArrayList<HealthSymptomSelector>> symptomselectorhash = new HashMap<Integer, ArrayList<HealthSymptomSelector>>();
+
+		for (int i = 0; i < bodylocs.size(); i++) {
+
+			bodysublocs = (ArrayList<HealthItem>) lbls.loadBodySubLocations(bodylocs.get(i).ID);// bodysublocs
+			for (int j = 0; j < bodysublocs.size(); j++) {
+				sublocsymptoms = (ArrayList<HealthSymptomSelector>) lbls.LoadSublocationSymptoms(bodysublocs.get(j).ID,
+						selectorStatus);
+				symptomselectorhash.put(j, sublocsymptoms);
+				sublocsymptomsmap.put(i, symptomselectorhash);
+
+			}
+
 		}
 		
-		
-		Map<Integer,List<HealthItem>> bodysublocsmap=new HashMap<Integer, List<HealthItem>>();
-		
-		for(int i=0;i<bodylocs.size();i++) 
-		{
-			List<HealthItem> items=lbls.loadBodySubLocations(bodylocs.get(i).ID);
+
+		for (int i = 0; i < bodylocs.size(); i++) {
+			List<HealthItem> items = lbls.loadBodySubLocations(bodylocs.get(i).ID);
 			bodysublocsmap.put(i, items);
-		
+
 		}
-		System.out.println(bodysublocsmap.get(1).get(0).Name+"YSLEEEEEEEEEEEEEEEEEEEEESSSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEEEE");
-		
-		
-		for(HealthItem subloc:bodySublocations) 
-		{
-			symptoms=(ArrayList<HealthSymptomSelector>) lbls.LoadSublocationSymptoms(subloc.ID,selectorStatus);
-			
-		}
+
 		mv.setViewName("bodyinfo");
-		mv.addObject("bodylocs",bodylocs);
-		mv.addObject("locsublocs", bodySublocations);
-		mv.addObject("sublocsymptoms", symptoms);
+
+		mv.addObject("bodylocs", bodylocs);
+		mv.addObject("bodysublocationsmap", bodysublocsmap);
+
+		mv.addObject("sublocsymptomsmap", sublocsymptomsmap);
 		return mv;
 	}
+
 	@GetMapping("/")
-	public String index() 
-	{
+	public String index() {
+
 		return "index";
 	}
-	
+
 	@GetMapping("/userinfo")
-	public ModelAndView userInfo(ModelAndView mv) 
-	{
-		List<Integer>numberOfYears=new ArrayList<Integer>();
-		for(int i=0;i<150;i++) 
-		{
+	public ModelAndView userInfo(ModelAndView mv) {
+		List<Integer> numberOfYears = new ArrayList<Integer>();
+		for (int i = 0; i < 150; i++) {
 			numberOfYears.add(i);
 		}
-		Calendar now =Calendar.getInstance();
-		int beginyear=now.get(Calendar.YEAR);
-		
-		
-		
+		Calendar now = Calendar.getInstance();
+		int beginyear = now.get(Calendar.YEAR);
+
 		mv.setViewName("userinfo");
-		mv.addObject("years",numberOfYears);
+		mv.addObject("years", numberOfYears);
 		mv.addObject("beginyear", beginyear);
 		return mv;
 	}
+
 	@PostMapping("/userinfo")
-	public String receiveUserInfo(@RequestParam Map<String,String> values) 
-	{
-		Map uservalues=new HashMap<String, String>();
-		uservalues=values;
+	public String receiveUserInfo(@RequestParam Map<String, String> values) {
+		Map uservalues = new HashMap<String, String>();
+		uservalues = values;
+
 		return "redirect:/bodyinfo";
 	}
-	
-	@PostMapping("/diagonize")
-	public String diagonize(@RequestParam Map<String,String> values) throws Exception 
-	{
-		Map symptomIds=new HashMap<String, String>();
-		symptomIds=values;
-		List bodyinfoList=lbls.loadbodyInfo(SelectorStatus.Boy);
-		List<HealthSymptomSelector>bodysymptomsList=(List<HealthSymptomSelector>) bodyinfoList.get(2);
-		ArrayList selectedSymptoms=new ArrayList();
-		
-		
-		
-		
 
+	@PostMapping("/diagonize")
+	public ModelAndView diagonize(@RequestParam Map<String, String> values,ModelAndView mv) throws Exception {
+		Map symptomIds = new HashMap<String, String>();
+		symptomIds = values;
+		List bodyinfoList = lbls.loadbodyInfo(SelectorStatus.Boy);
+		HashMap<Integer,List<HealthSymptomSelector>> bodysymptomsList = (HashMap<Integer,List<HealthSymptomSelector>>) bodyinfoList.get(2);
+		List<HealthSymptomSelector>symptoms=new ArrayList<HealthSymptomSelector>();
+		List<HealthSymptomSelector>listsymptomsvaluesreceived=new ArrayList<HealthSymptomSelector>();
+
+		
+		for(int i=0;i<bodysymptomsList.size();i++) 
+		{
+			symptoms.addAll(bodysymptomsList.get(i));
+		}
+		
+		
 		for(int i=0;i<1000;i++) 
 		{
-			if(values.get(String.valueOf(i))!=null) 
+			if((values.get(String.valueOf(i))!=null)) 
 			{
-				for(HealthSymptomSelector item:bodysymptomsList) 
+				for(HealthItem bodyloc:lbls.loadBodyLocations()) 
 				{
-					if(item.ID==i) 
+					if(bodyloc.ID==i) 
 					{
-						selectedSymptoms.add(item);
+						
+						for(HealthItem ss:lbls.loadBodySubLocations(bodyloc.ID)) 
+						{
+							listsymptomsvaluesreceived.addAll(lbls.LoadSublocationSymptoms(ss.ID, SelectorStatus.Boy));
+						}
 					}
 				}
 			}
 		}
-		List<Integer> diagnosis=lbls.diagonize(selectedSymptoms, Gender.Male, SelectorStatus.Boy);
-		System.out.println(lbls.diagonize(selectedSymptoms, Gender.Male, SelectorStatus.Boy)+"DDDDDDDDDDDDDIAAAAAAAAAAGGGGGGGGGGNNNNNNNNSOOOOOOSISSSSSSSSSSS");
-		return "diagonize";
+		
+		lbls.LoadDiagnosis(listsymptomsvaluesreceived, Gender.Male);
+		
+		mv.setViewName("diagonize");
+		mv.addObject("values",listsymptomsvaluesreceived);
+		
+		return mv;
 	}
 }
